@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    # loadbalancer:
+    #   ribbon:
+    #     enabled: false
+    #   retry:
+    #     filter:
+    #       order: 101
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+      routes:
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**,/api/user/**
+            - Method=GET,POST,PUT,DELETE
+          filters:
+            #- RewritePath=/api/(?<segment>.*), /$\{segment}
+            # - name: RequestRateLimiter
+            #   args:
+            #     redis-rate-limiter:
+            #       replenishRate: 10
+            #       burstCapacity: 20
+            #       deny-empty-key: false
+            #     key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: userServiceCircuitBreaker
+                fallbackUri: forward:/fallback
+            - name: Retry
+              args:
+                retries: 10
+                statuses: BAD_GATEWAY
+            - name: JwtAuthentication
+              args:
+                tokenHeader: Authorization
+                tokenPrefix: "Bearer "
+                allowPublicEndpoints: true
+                publicEndpoints: "/api/auth/login,/api/auth/register,/actuator/info,/actuator/health"
+        - id: post-service-route
+          uri: lb://post-service
+          predicates:
+            - Path=/api/post/**
+          filters:
+            - RewritePath=/api/posts/(?<segment>.*), /$\{segment}
+            - name: CircuitBreaker
+              args:
+                name: userServiceCircuitBreaker
+                fallbackUri: forward:/fallback
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY
+            - name: JwtAuthentication
+              args:
+                tokenHeader: Authorization
+                tokenPrefix: "Bearer "
+                allowPublicEndpoints: true
+                publicEndpoints: "/api/auth/login,/api/auth/register"
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+eureka:
+  client:
+    # initial-instance-info-replication-interval-seconds: 5
+    # registry-fetch-interval-seconds: 5
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/ #http://admin:password@localhost:8761/eureka #rep;ace with eureka-server in docker version of this file
+  # instance:
+  #   lease-renewal-interval-in-seconds: 5
+  #   lease-expiration-duration-in-seconds: 5
+  #   preferIpAddress: true
+  #   hostname: localhost
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        netflix: DEBUG
+        web:
+          reactive: DEBUG
+        cloud:
+          gateway: DEBUG
+          netflix:
+            eureka: DEBUG
+          client:
+            loadbalancer: DEBUG
+
+jwt: # change secret
+  secret: RqqTGTbrokhLH59FhcdeQfQIloa7zR/ZIhaBzGPRZzAGVJgWx9faoewBE0JQcGguuC4B1PIzXPxPufaBMdBV0Q==
+  expiration: 3600000  # 1 hour in milliseconds
