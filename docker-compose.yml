@@ -2,11 +2,14 @@ version: '3.8'
 
 services:
   eureka-server:
+    build: ./eureka-server
     image: eureka-server:latest
     networks:
       - posted-network
     ports:
       - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
     healthcheck:
       test: ["CMD", "curl", "-f", "http://eureka-server:8761/actuator/health"]
       interval: 10s
@@ -68,7 +71,12 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - app-network
+      - posted-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   user-service:
     container_name: user-service
@@ -80,11 +88,17 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://posted-db:3306/postedDB?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       eureka-server:
         condition: service_healthy
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   post-service:
     container_name: post-service
@@ -97,6 +111,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://posted-db:3306/postedDB?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -117,10 +132,17 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_REDIS_HOST=redis
+      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       eureka-server:
         condition: service_healthy
-      - redis
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mysql-data:

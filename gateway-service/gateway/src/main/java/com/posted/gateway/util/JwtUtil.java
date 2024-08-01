@@ -46,7 +46,7 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             extractAllClaims(token);
-            return (!isTokenExpired(token));
+            return !isTokenExpired(token);
         } catch(JwtException | IllegalArgumentException e) {
             return false;
         }
@@ -65,7 +65,7 @@ public class JwtUtil {
     public Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
-                .verifyWith(getSecretKey())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -84,7 +84,7 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Key getSigningKey() {
+    private SecretKey getSigningKey() {
         byte[] keyBytes = this.jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }

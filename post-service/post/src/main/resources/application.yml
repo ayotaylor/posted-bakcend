@@ -16,7 +16,7 @@ spring:
       name: user
       password: password
   kafka:
-    bootstrap-servers: kafka:9092 #172.31.0.2:9092
+    bootstrap-servers: localhost:9092 #172.31.0.2:9092
     producer:
       #bootstrap-servers: localhost:9092  # update once pushed to container
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

@@ -64,8 +64,11 @@ public class JwtAuthenticationGatewayFilterFactory extends AbstractGatewayFilter
     }
 
     private boolean isAuthMandatory(ServerHttpRequest request, Config config) {
-
-        return !config.isAllowPublicEndpoints() && !config.getPublicEndpoints().contains(request.getPath().value());
+        if (!config.isAllowPublicEndpoints())
+        {
+            return true;
+        }
+        return !config.getPublicEndpoints().contains(request.getPath().value());
     }
 
     public static class Config {

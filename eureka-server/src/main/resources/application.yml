@@ -1,10 +1,6 @@
 spring:
   application:
     name: eureka-service
-  # security:
-  #   user:
-  #     name: admin
-  #     password: password
 
 server:
   port: 8761
@@ -12,7 +8,6 @@ server:
 eureka:
   instance:
       prefer-ip-address: true
-      #hostname: localhost
   client:
     registerWithEureka: false
     fetchRegistry: false

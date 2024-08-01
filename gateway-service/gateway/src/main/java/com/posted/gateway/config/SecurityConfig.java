@@ -6,27 +6,11 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
-import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
-import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
-import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.server.PathContainer;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.pattern.PathPattern;
-import org.springframework.web.util.pattern.PathPatternParser;
 
 import com.posted.gateway.filters.JwtAuthenticationGatewayFilterFactory;
 import com.posted.gateway.util.JwtUtil;
@@ -60,6 +44,7 @@ public class SecurityConfig {
                         for (String path : paths) {
                             ex.pathMatchers(path.trim()).permitAll();
                         }
+                        ex.pathMatchers("/actuator/health", "/actuator/info").permitAll();
                         ex.anyExchange().authenticated();
                     });
 

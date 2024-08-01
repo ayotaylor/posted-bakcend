@@ -1,11 +1,11 @@
 spring:
   application:
-      name: post-service
-  cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true
+    name: post-service
+  # cloud:
+  #   gateway:
+  #     discovery:
+  #       locator:
+  #         enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://posted-db:3306/postedDB?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
@@ -39,10 +39,10 @@ logging:
   level:
     org:
       springframework:
-        security: DEBUG
-        kafka: DEBUG
+        security: INFO
+        kafka: INFO
       apache:
-        kafka: DEBUG
+        kafka: INFO
 
 # jwt:
 #   secret: RqqTGTbrokhLH59FhcdeQfQIloa7zR/ZIhaBzGPRZzAGVJgWx9faoewBE0JQcGguuC4B1PIzXPxPufaBMdBV0Q==
